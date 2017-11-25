@@ -1,0 +1,18 @@
+--SparkSQL
+
+scala> case class Word(word: String)
+scala> val wordsDF = sc.textFile("origem/*").flatMap(_.split(" ")).map(w => Word(w)).toDF()
+scala> wordsDF.registerTempTable("words")
+scala> sqlContext.sql("select word from words order by word desc").show
+
+--Spark
+val rddEscola = sc.wholeTextFiles("/entrada")
+rddEscola.collect
+val rddContEscola = rddEscola.map{case (nomeArq, conteudo) => conteudo}
+rddContEscola.collect
+val rddLinhasEscola = rddContEscola.flatMap(file => file.split("\n"))
+rddLinhasEscola.collect
+val rddEscolaOder = rddLinhasEscola.map(arq => (arq, 1)).reduceByKey(_ + _)
+rddEscolaOder.collect
+val rddEscolaSort = rddEscolaOder.sortBy(_._1, false)
+rddEscolaSort.collect
